@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+
+# Fixes a corrupt .zsh_history file
+
+# move contents of current zsh history filr
+mv ~/.zsh_history ~/.zsh_history_bad
+
+# fix encoding
+strings -eS ~/.zsh_history_bad > ~/.zsh_history
+fc -R ~/.zsh_history
+
+# remove old hisotry file
+rm ~/.zsh_history_bad
