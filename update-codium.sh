@@ -5,6 +5,7 @@ echo 'Looking for codiums deb file...'
 codium_deb=$(find ~/Downloads/Programs/ -name 'codium*')
 
 if [[ -f $codium_deb ]]; then
+  echo 'found codium deb file'
 
   # install debian package
   sudo dpkg -i "$codium_deb" 
@@ -24,6 +25,8 @@ codium_tar=$(find ~/Downloads/Compressed/ -name 'VSCodium*')
 echo 'Looking for codiums tar file...'
 
 if [[ -f $codium_tar  ]]; then
+
+  echo 'found codium tar archive'
 
   # unzip the tar ball and copy contents to /usr/share/codium/
   sudo tar -xf "$codium_tar" --directory=/usr/share/codium
