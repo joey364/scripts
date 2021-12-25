@@ -15,17 +15,14 @@ install_type=$1
 cd "$(mktemp -d)" || return
 
 if [[ $install_type == "stable" ]]; then
-  git clone --branch stable --single-branch https://github.com/neovim/neovim 
-elif [[ $install_type == "dev"   ]]; then
-  git clone https://github.com/neovim/neovim --depth=1 
-else 
-  echo 'Enter stable or dev and try again..'
-  exit 0
+	git clone --branch stable --single-branch https://github.com/neovim/neovim
+elif [[ $install_type == "dev" ]]; then
+	git clone https://github.com/neovim/neovim --depth=1
+else
+	echo 'Pass stable or dev to script and try again..'
+	exit 0
 fi
 
-cd neovim && sudo make CMAKE_BUILD_TYPE=Release install
+cd neovim && sudo make install CMAKE_BUILD_TYPE=Release
 
 cd .. && sudo rm -rf neovim/
-
-
-
