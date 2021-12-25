@@ -17,5 +17,5 @@ jobs:
         run: |
           GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
       # https://google.github.io/styleguide/shellguide.html
-      - name: Check formatting
-        run: make style-sh
+      # - name: Check formatting
+      #   run: make style-sh
