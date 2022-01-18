@@ -80,8 +80,32 @@ install_without_clone() {
 	fi
 }
 
-# create a temp directory and move into it
-cd "$(mktemp -d)" || return
+cleanup() {
+	cd .. && sudo rm -rf neovim/
+}
+
+print_header() {
+	cat <<'EOF'
+ _           _ _     _              _           
+| |__  _   _(_) | __| |  _ ____   _(_)_ __ ___  
+| '_ \| | | | | |/ _` | | '_ \ \ / / | '_ ` _ \ 
+| |_) | |_| | | | (_| | | | | \ V /| | | | | | |
+|_.__/ \__,_|_|_|\__,_| |_| |_|\_/ |_|_| |_| |_|
+                                                
+EOF
+}
+
+main() {
+
+	print_header
+
+	if [[ $EUID -ne 0 ]]; then
+		echo "This script must be run as root, use sudo $0 instead" 1>&2
+		exit 1
+	fi
+
+	# create a temp directory and move into it
+	cd "$(mktemp -d)" || return
 
 install_build_deps
 
