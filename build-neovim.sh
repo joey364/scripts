@@ -15,20 +15,21 @@ install_type=$1
 
 # install build dependencies
 install_build_deps() {
-	echo "Installing build dependencies.."
+	echo "installing build dependencies.."
 	os_type=$(uname -s)
 	case "$os_type" in
 	Linux)
-		echo "linux you dey top"
 		if [[ -f "/etc/fedora-release" || -f "/etc/redhat-release" ]]; then
-			echo "red hat you dey top"
-			sudo yum -y install ninja-build libtool autoconf automake cmake gcc gcc-c++ make pkgconfig unzip patch gettext curl
+			echo "installing build dependencies with dnf"
+			sudo yum -y install ninja-build libtool autoconf automake cmake gcc gcc-c++ make \
+				pkgconfig unzip patch gettext curl
 		elif [[ -f "/etc/arch-release" ]]; then
 			echo "i use arch btw.."
 			sudo pacman -S base-devel cmake unzip ninja tree-sitter curl
 		else
-			echo "debian this"
-			sudo apt-get install ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
+			echo "installing build dependencies with apt-get"
+			sudo apt-get install ninja-build \
+				gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
 		fi
 		;;
 	*)
@@ -60,7 +61,7 @@ install_with_clone() {
 		cd neovim && make_nightly
 	else
 		echo 'Pass stable or dev to script and try again..'
-		echo 'e.g. ./build-neovim.sh dev'
+		echo 'e.g. sudo ./build-neovim.sh dev'
 		exit 0
 	fi
 }
@@ -68,14 +69,14 @@ install_with_clone() {
 # use already existing repo
 install_without_clone() {
 	sudo cp -r "$HOME/neovim" .
-	cd neovim && git pull
+	cd $HOME/neovim && git pull
 	if [[ $1 == 'stable' ]]; then
-		git checkout stable && make_release
+		sudo git checkout stable && make_release
 	elif [[ $1 == 'dev' ]]; then
-		git checkout master && make_nightly
+		sudo git checkout master && make_nightly
 	else
 		echo 'Pass stable or dev to script and try again..'
-		echo 'e.g. ./build-neovim.sh dev'
+		echo 'e.g. sudo ./build-neovim.sh dev'
 		exit 0
 	fi
 }
@@ -99,6 +100,7 @@ main() {
 
 	print_header
 
+	# require sudo to run script
 	if [[ $EUID -ne 0 ]]; then
 		echo "This script must be run as root, use sudo $0 instead" 1>&2
 		exit 1
@@ -107,15 +109,16 @@ main() {
 	# create a temp directory and move into it
 	cd "$(mktemp -d)" || return
 
-install_build_deps
+	# install_build_deps
 
-# check for nvim repo locally
-if [[ -d "$HOME/neovim" ]]; then
-	echo "nvim repo already here"
-	install_without_clone $install_type
-else
-	echo "nvim repo not here"
-	install_with_clone $install_type
-fi
+	# check for nvim repo locally
+	if [[ -d "$HOME/neovim" ]]; then
+		echo "nvim repo already here"
+		install_without_clone $install_type
+	else
+		echo "nvim repo not here"
+		install_with_clone $install_type
+	fi
+}
 
-cd .. && sudo rm -rf neovim/
+main
