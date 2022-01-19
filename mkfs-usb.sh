@@ -19,11 +19,11 @@ read mpoint
 
 # unmount the drive
 echo $mpoint
-if [[ -d $mpoint ]]; then
+if [[ $(findmnt $mpoint) > /dev/null ]]; then
 	echo "Mount location found.."
 	# unount $mpoint
 else
-	echo "Enter a valid location"
+	echo "Enter a valid device location"
 	exit 1
 fi
 
