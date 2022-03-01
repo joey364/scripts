@@ -16,13 +16,13 @@ check_dependencies() {
 		echo "gresource installed.."
 	elif [ -f "/etc/arch-release" ]; then
 		echo "instaliing gresource with pacman.."
-		pacman -S glib2
+		pacman -Sy glib2
 	elif [ -f "/etc/fedora-release" ]; then
 		echo "instaliing gresource with dnf.."
-		dnf install glib2-devel
+		dnf -y install glib2-devel
 	else
 		echo "instaliing gresource with apt.."
-		apt-get install libglib2.0-bin
+		apt-get install libglib2.0-bin -y
 	fi
 }
 
