@@ -23,12 +23,12 @@ echo "moving dnf.conf /etc/dnf/dnf.conf .."
 sudo mv ./dnf.conf /etc/dnf/dnf.conf
 
 echo "Enabling RPM Fusion free repos.."
-dnf install \
+dnf install -y \
 	https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm
 
 # rpmfusion non-free repos
 echo "Enabling RPM Fusion non-free repos.."
-dnf install \
+dnf install -y \
 	https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)."noarch.rpm
 
 # add flathub repo
@@ -37,10 +37,10 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 
 # install media codecs
 echo "Installing media codecs"
-dnf install gstreamer1-plugins-{bad-\*,good-\*,base} \
+dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} \
 	gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
 
-dnf install lame\* --exclude=lame-devel
+dnf install -y lame\* --exclude=lame-devel
 
 dnf group upgrade --with-optional Multimedia
 
@@ -51,7 +51,7 @@ dnf config-manager --set-enabled fedora-cisco-openh264
 
 # install the plugins
 # ppst gstreamer1-plugin-openh264 already installed
-dnf install mozilla-openh264
+dnf install -y mozilla-openh264
 
 echo
 echo "all done have a nice day 😄"
