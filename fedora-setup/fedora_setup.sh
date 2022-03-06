@@ -21,17 +21,6 @@ sudo dnf update -y
 echo "moving dnf.conf /etc/dnf/dnf.conf .."
 # TODO: potential issue here (check cwd)
 sudo mv ./dnf.conf /etc/dnf/dnf.conf
-#sudo echo <<'EOF'
-#[main]
-#best=False
-#clean_requirements_on_remove=True
-#defaultyes=True
-#fatestmirror=True
-#gpgcheck=1
-#installonly_limit=2
-#max_parallel_downloads=10
-#skip_if_unavailable=True
-#EOF
 
 echo "Enabling RPM Fusion free repos.."
 dnf install \
