@@ -14,44 +14,69 @@ EOF
 echo "Sudo access required.."
 sudo -v
 
+# keep alive
+while true; do
+	sudo -n true
+	sleep 60
+	kill -0 "$$" || exit
+done 2>/dev/null &
+
+# copy dnf.conf to /etc/dnf/dnf.conf
+echo "copying dnf.conf /etc/dnf/dnf.conf .."
+echo "
+[main]
+best=False
+clean_requirements_on_remove=True
+defaultyes=True
+fatestmirror=True
+gpgcheck=1
+installonly_limit=2
+max_parallel_downloads=10
+skip_if_unavailable=True
+" | sudo tee /etc/dnf/dnf.conf
+
 # update the system
 sudo dnf update -y
 
-# copy dnf.conf to /etc/dnf/dnf.conf
-echo "moving dnf.conf /etc/dnf/dnf.conf .."
-# TODO: potential issue here (check cwd)
-sudo mv ./dnf.conf /etc/dnf/dnf.conf
-
 echo "Enabling RPM Fusion free repos.."
-dnf install -y \
+sudo dnf install -y \
 	https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm
 
 # rpmfusion non-free repos
 echo "Enabling RPM Fusion non-free repos.."
-dnf install -y \
+sudo dnf install -y \
 	https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)."noarch.rpm
 
 # add flathub repo
-echo "Adding FlatHub repo.."
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+echo "Adding FlatHub.."
+flatpak remote-add -y --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # install media codecs
-echo "Installing media codecs"
-dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} \
+echo "Installing media codecs.."
+sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} \
 	gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
 
-dnf install -y lame\* --exclude=lame-devel
+sudo dnf install -y lame\* --exclude=lame-devel
 
-dnf group upgrade --with-optional Multimedia
+sudo dnf group upgrade --with-optional Multimedia
 
 # openh264 codec
 echo "Adding openh264 codec.."
 # enable it
-dnf config-manager --set-enabled fedora-cisco-openh264
+sudo dnf config-manager --set-enabled fedora-cisco-openh264
 
 # install the plugins
 # ppst gstreamer1-plugin-openh264 already installed
-dnf install -y mozilla-openh264
+sudo dnf install -y mozilla-openh264
+
+# install appStream metadata
+echo "Installing appStream metadata.."
+sudo dnf groupupdate core -y
+
+# post multimedia install
+sudo dnf groupupdate -y multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+
+sudo dnf groupupdate sound-and-video
 
 echo
 echo "all done have a nice day 😄"
