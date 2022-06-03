@@ -78,8 +78,11 @@ EOF
 
 # copy prefered image to working directory
 get_image_location() {
-	image_path=$(zenity --file-selection)
-	is_image $image_path && cp $image_path $workdir || (echo 'file selected not an image' && exit 1)
+	# image_path=$(zenity --file-selection)
+	echo "select an image"
+	image_path=$(zenity --file-selection --title="Select image" --filename="$HOME/Pictures/")
+	! is_image $image_path && (echo 'file selected not an image' && exit 1)
+	cp $image_path $THEME_DIR
 }
 
 is_image() {
