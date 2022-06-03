@@ -7,6 +7,7 @@
 # pacman -S glib2
 # Fedora
 # dnf install glib2-devel
+set -e
 
 declare WORKDIR=''
 declare GRSRC_DIR='/usr/share/gnome-shell'
@@ -57,7 +58,7 @@ extract_gdm_theme() {
 # create backup of current gresource file
 create_backup() {
 	echo "Creating backup of current gresource file"
-	cp $GRSRC_DIR/gnome-shell-theme.gresource $GRSRC_DIR/gnome-shell-theme.gresource.bak
+	sudo cp $GRSRC_DIR/gnome-shell-theme.gresource $GRSRC_DIR/gnome-shell-theme.gresource.bak
 }
 
 # create a shell theme gresource files
@@ -86,7 +87,7 @@ get_image_location() {
 }
 
 is_image() {
-	if file $1 | grep -qE 'image|bitmap'; then
+	if eval file --mime-type -b $1 | grep -qE 'image|bitmap'; then
 		return 0
 	else
 		return 1
@@ -97,26 +98,29 @@ is_image() {
 
 # edit gnome-shell-theme.css
 edit_gnome_css() {
+	echo "editing gnome-shell.css.."
 	replacement='#lockDialogGroup { background-image: url('"$(basename $image_path)"'); background-size: center center; background-repeat: no-repeat; }'
 
-	sed -i -z -E 's,#lockDialogGroup\s*\{[^}]+\},'"$replacement"',g' gnome-shell-theme.gresource.xml
+	sed -i -z -E 's,#lockDialogGroup\s*\{[^}]+\},'"$replacement"',g' $THEME_DIR/gnome-shell.css
 }
 
 # change background from solid color to image
 
 # compile the new gnome shell gresource file
 compile_gresource() {
-	glib-compile-resources gnome-shell-theme.gresource.xml
+	echo "compiling gresource.."
+	glib-compile-resources --sourcedir=$THEME_DIR $THEME_DIR/gnome-shell-theme.gresource.xml
 }
 
 # copy output binary to /usr/share/gnome-shell/
 move_gresource() {
-	sudo cp gnome-shell-theme.gresource $GRSRC_DIR/
+	echo "copying gresource file to $GRSRC_DIR.."
+	sudo mv $THEME_DIR/gnome-shell-theme.gresource $GRSRC_DIR/
 }
 
 # restart gdm.servie for changes to take effect
 restart_gdm() {
-	echo "log out of curret session for changes to take effect"
+	echo "log out of current session for changes to take effect"
 	echo "or reboot if you prefer"
 }
 
@@ -155,29 +159,31 @@ EOF
 main() {
 	print_banner
 
-	[ $1 = '-reset' ] && reset
+	echo "sudo access required"
+	sudo -v
 
-	# check_dependencies
+	[[ $1 == '-reset' ]] && reset
 
-	# setup
+	check_dependencies
 
-	# create_backup
+	setup
 
-	# extract_gdm_theme
+	create_backup
 
-	# get_image_location
+	extract_gdm_theme
 
-	# create_gresource_xml
+	get_image_location
 
-	# edit_gnome_css
+	create_gresource_xml
 
-	# compile_gresource
+	edit_gnome_css
 
-	# move_gresource
+	compile_gresource
 
-	# restart_gdm
+	move_gresource
 
-	# [ $1 = '-now' ] && apply_changes
+	restart_gdm
+
 }
 
 main "$@"
