@@ -74,7 +74,8 @@ echo "Installing appStream metadata.."
 sudo dnf groupupdate core -y
 
 # post multimedia install
-sudo dnf groupupdate -y multimedia --setop="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+sudo dnf groupupdate -y multimedia --setop="install_weak_deps=False" \
+	--exclude=PackageKit-gstreamer-plugin
 
 sudo dnf groupupdate sound-and-video
 
