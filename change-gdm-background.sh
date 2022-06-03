@@ -62,17 +62,18 @@ create_backup() {
 
 # create a shell theme gresource files
 create_gresource_xml() {
+	# find $THEME_DIR -type f -print >$THEME_DIR/filenames.txt
+	# body=$(sed 's,^\./,     <file>,g; s,$,</file>,g' $THEME_DIR/filenames.txt)
+	extractedFiles=$(find $THEME_DIR -type f -printf "%P\n" | xargs -i echo "<file>{}</file>")
 
-	heading='<?xml version="1.0" encoding="UTF-8"?>
-<gresources>\n
-  <gresource prefix="/org/gnome/shell/theme">\n'
-
-	find $WORKDIR/shell-theme/theme -type f -print >filenames.txt
-	body=$(sed 's,^\./,     <file>,g; s,$,</file>,g' filenames.txt)
-	ending="\n</gresource>
-\n</gresources>
-"
-	echo "$heading" "$body" "$ending" | tee gnome-shell-theme.gresource.xml
+	cat <<EOF >"$THEME_DIR/gnome-shell-theme.gresource.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/shell/theme">
+    $extractedFiles
+  </gresource>
+</gresources>
+EOF
 }
 
 # copy prefered image to working directory
