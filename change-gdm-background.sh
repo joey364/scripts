@@ -10,10 +10,12 @@
 
 declare WORKDIR=''
 declare GRSRC_DIR='/usr/share/gnome-shell'
+declare THEME_DIR=''
 
 # setup
 setup() {
 	WORKDIR=$(mktemp -d)
+	THEME_DIR="$WORKDIR/shell-theme/theme"
 }
 
 # check dependencies
