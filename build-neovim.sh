@@ -14,6 +14,7 @@
 # build from remote
 # build from local repo
 # build stable, release, @version
+
 # take input for install type
 # install_type=$1
 # TODO: ADD OPTION FOR CUSTOM PATH FOR LOCAL REPO
@@ -148,3 +149,49 @@ _build_at_version() {
 	echo "you are on neovim release version $1"
 }
 
+main() {
+
+	print_header
+
+	[[ $# -eq 0 ]] && _usage
+	[[ $# -gt 2 ]] && echo hey
+
+	while getopts ":hdsr:ip:" opt; do
+		case $opt in
+		h)
+			_usage
+			;;
+		p)
+			_validate_path_provided $OPTARG
+			;;
+		i)
+			_install_build_deps
+			;;
+		d)
+			echo "installing nightly release of neovim.."
+			_prep "$@"
+			_build_dev
+			# _cleanup
+			;;
+		s)
+			echo "installing stable release of neovim.."
+			_prep "$@"
+			_build_stable
+			# _cleanup
+			;;
+		r)
+			echo "installing a specific version of neovim.."
+			[[ $OPTARG != [0-9]\.[0-9]\.[0-9] ]] && echo 'version must be in format x.x.x' && exit 1
+			_prep "$@"
+			_build_at_version "v$OPTARG"
+			# _cleanup
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" >&2
+			_usage
+			;;
+		esac
+	done
+}
+
+main "$@"
