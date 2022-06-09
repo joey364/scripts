@@ -66,17 +66,85 @@ _make_nightly() {
 	sudo make install CMAKE_BUILD_TYPE=Debug
 }
 
+_cleanup() {
+	cd .. && sudo rm -rf neovim/
 }
 
+_usage() {
+	echo "Usage: build-neovim.sh [<options>]"
+	echo ""
+	echo "Options:"
+	echo "    -h                     Print this help message"
+	echo "    -i                     Install build dependencies"
+	echo "    -p <path_to_dir>       Specify a custom path to repo"
+	echo "                              default: $HOME/neovim"
+	echo "    -s                     Build stable release of neovim"
+	echo "    -d                     Build nightly release of neovim"
+	echo "    -r <release_number>    Build a specific release of neovim ie. x.x.x"
+	exit 0
 }
 
+_prep() {
+	echo "preparing to build neovim.."
+	install_dir=$(basename "$(mktemp -d)")
 
+	echo "changing directory to /tmp/$install_dir.."
+	cd /tmp/$install_dir || return
+	_get_nvim_repo "$1"
 }
 
+decalre LOCAL_REPO_PATH
 
+_get_nvim_repo() {
+	echo "getting nvim repo.."
+
+	path=${LOCAL_REPO_PATH:-"$HOME/neovim"}
+
+	echo path: $path
+
+	if [[ -d $path ]]; then
+		echo "found existing repo at $path.."
+		echo "copying files.."
+		cp -r $path /tmp/$install_dir
+		echo "getting latest commits.."
+		cd "$(basename $path)" && git pull || return
+	else
+		echo 'cloning nvim repo..'
+		# git clone 'https://github.com/neovim/neovim'
+		[[ $? -ne 0 ]] && echo 'failed to clone nvim repo..' && exit 1
+		cd neovim || return
+	fi
+}
+
+_validate_path_provided() {
+	echo "validating path.."
+	[[ -d $1 ]] && cd $1 || (echo "path does not exist" && return 1)
+	if [[ $(git remote -v | awk '{print $2}' | head -1) == "https://github.com/neovim/neovim" ]]; then
+		echo "all good"
+		LOCAL_REPO_PATH=$1
+		cd - &>/dev/null && return 0
+	else
+		echo "not a valid repo"
+		cd - &>/dev/null && return 1
 	fi
 
+}
 
+_build_stable() {
+	echo "building stable release of neovim.."
+	git checkout stable && _make_release
+	echo "you are on the stable release of neovim!"
+}
 
+_build_dev() {
+	echo "building nightly release of neovim.."
+	git checkout master && _make_nightly
+	echo "you are on nightly release of neovim!"
+}
+
+_build_at_version() {
+	echo "building at specific version of neovim.."
+	git checkout $1 && _make_release
+	echo "you are on neovim release version $1"
 }
 
