@@ -16,7 +16,8 @@
 # build stable, release, @version
 # take input for install type
 # install_type=$1
-#; TODO: ADD SUPPORT FOR CUSTOM PATH FOR LOCAL REPO
+# TODO: ADD OPTION FOR CUSTOM PATH FOR LOCAL REPO
+set -e
 
 _print_header() {
 	cat <<'EOF'
@@ -28,13 +29,15 @@ _print_header() {
                                                 
 EOF
 }
+
 # install build dependencies
+_install_build_deps() {
 	echo "installing build dependencies.."
 	os_type=$(uname -s)
 	case "$os_type" in
 	Linux)
 		if [[ -f "/etc/fedora-release" || -f "/etc/redhat-release" ]]; then
-			echo "installing build dependencies with dnf"
+			echo "installing build dependencies with dnf.."
 			sudo yum -y install ninja-build libtool autoconf automake cmake gcc gcc-c++ make \
 				pkgconfig unzip patch gettext curl
 		elif [[ -f "/etc/arch-release" ]]; then
@@ -54,10 +57,12 @@ EOF
 }
 
 # make command to build release version of nvim
+_make_release() {
 	sudo make install CMAKE_BUILD_TYPE=Release
 }
 
 # make command to build nightly version of nvim
+_make_nightly() {
 	sudo make install CMAKE_BUILD_TYPE=Debug
 }
 
