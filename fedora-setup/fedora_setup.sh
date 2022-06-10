@@ -80,5 +80,10 @@ sudo dnf groupupdate -y multimedia --setop="install_weak_deps=False" \
 
 sudo dnf groupupdate -y sound-and-video
 
+# setup snapd
+echo "Installing snap.."
+sudo dnf install -y snapd
+sudo ln -s /var/lib/snapd/snap/ /snap
+
 echo
 echo "all done have a nice day 😄"
