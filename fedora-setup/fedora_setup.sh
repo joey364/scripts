@@ -49,7 +49,7 @@ sudo dnf install -y \
 
 # add flathub repo
 echo "Adding FlatHub.."
-flatpak remote-add -y --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # install media codecs
 echo "Installing media codecs.."
@@ -58,7 +58,7 @@ sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} \
 
 sudo dnf install -y lame\* --exclude=lame-devel
 
-sudo dnf group upgrade --with-optional Multimedia
+sudo dnf group upgrade -y --with-optional Multimedia
 
 # openh264 codec
 echo "Adding openh264 codec.."
@@ -74,10 +74,11 @@ echo "Installing appStream metadata.."
 sudo dnf groupupdate core -y
 
 # post multimedia install
+echo "Perfoming most media codecs install.."
 sudo dnf groupupdate -y multimedia --setop="install_weak_deps=False" \
 	--exclude=PackageKit-gstreamer-plugin
 
-sudo dnf groupupdate sound-and-video
+sudo dnf groupupdate -y sound-and-video
 
 echo
 echo "all done have a nice day 😄"
