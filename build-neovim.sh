@@ -94,7 +94,7 @@ _prep() {
 	_get_nvim_repo "$1"
 }
 
-decalre LOCAL_REPO_PATH
+declare LOCAL_REPO_PATH
 
 _get_nvim_repo() {
 	echo "getting nvim repo.."
@@ -151,7 +151,7 @@ _build_at_version() {
 
 main() {
 
-	print_header
+  _print_header
 
 	[[ $# -eq 0 ]] && _usage
 	[[ $# -gt 2 ]] && echo hey
