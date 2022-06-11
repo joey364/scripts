@@ -36,7 +36,7 @@ skip_if_unavailable=True
 " | sudo tee /etc/dnf/dnf.conf
 
 # update the system
-sudo dnf update -y
+sudo dnf-y upgrade
 
 echo "Enabling RPM Fusion free repos.."
 sudo dnf install -y \
