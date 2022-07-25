@@ -44,13 +44,13 @@ extract_gdm_theme() {
 
 	for r in $(gresource list $gst); do
 		r=${r#\/org\/gnome\/shell/}
-		if [ ! -d $workdir/${r%/*} ]; then
-			mkdir -p $workdir/${r%/*}
+		if [ ! -d "$workdir/""${r%/*}" ]; then
+			mkdir -p "$workdir/${r%/*}"
 		fi
 	done
 
 	for r in $(gresource list $gst); do
-		gresource extract $gst $r >$workdir/${r#\/org\/gnome\/shell/}
+		gresource extract "$gst" "$r" >"$workdir"/"${r#\/org\/gnome\/shell/}"
 	done
 
 }
@@ -65,7 +65,7 @@ create_backup() {
 create_gresource_xml() {
 	# find $THEME_DIR -type f -print >$THEME_DIR/filenames.txt
 	# body=$(sed 's,^\./,     <file>,g; s,$,</file>,g' $THEME_DIR/filenames.txt)
-	extractedFiles=$(find $THEME_DIR -type f -printf "%P\n" | xargs -i echo "<file>{}</file>")
+	extractedFiles=$(find "$THEME_DIR" -type f -printf "%P\n" | xargs -i echo "<file>{}</file>")
 
 	cat <<EOF >"$THEME_DIR/gnome-shell-theme.gresource.xml"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -82,12 +82,12 @@ get_image_location() {
 	# image_path=$(zenity --file-selection)
 	echo "select an image"
 	image_path=$(zenity --file-selection --title="Select image" --filename="$HOME/Pictures/")
-	! is_image $image_path && (echo 'file selected not an image' && exit 1)
-	cp $image_path $THEME_DIR
+	! is_image "$image_path" && (echo 'file selected not an image' && exit 1)
+	cp "$image_path" "$THEME_DIR"
 }
 
 is_image() {
-	if eval file --mime-type -b $1 | grep -qE 'image|bitmap'; then
+	if eval file --mime-type -b "$1" | grep -qE 'image|bitmap'; then
 		return 0
 	else
 		return 1
@@ -99,9 +99,9 @@ is_image() {
 # edit gnome-shell-theme.css
 edit_gnome_css() {
 	echo "editing gnome-shell.css.."
-	replacement='#lockDialogGroup { background-image: url('"$(basename $image_path)"'); background-size: center center; background-repeat: no-repeat; }'
+	replacement='#lockDialogGroup { background-image: url('"$(basename "$image_path")"'); background-size: center center; background-repeat: no-repeat; }'
 
-	sed -i -z -E 's,#lockDialogGroup\s*\{[^}]+\},'"$replacement"',g' $THEME_DIR/gnome-shell.css
+	sed -i -z -E 's,#lockDialogGroup\s*\{[^}]+\},'"$replacement"',g' "$THEME_DIR/gnome-shell.css"
 }
 
 # change background from solid color to image
@@ -109,13 +109,13 @@ edit_gnome_css() {
 # compile the new gnome shell gresource file
 compile_gresource() {
 	echo "compiling gresource.."
-	glib-compile-resources --sourcedir=$THEME_DIR $THEME_DIR/gnome-shell-theme.gresource.xml
+	glib-compile-resources --sourcedir="$THEME_DIR" "$THEME_DIR/gnome-shell-theme.gresource.xml"
 }
 
 # copy output binary to /usr/share/gnome-shell/
 move_gresource() {
 	echo "copying gresource file to $GRSRC_DIR.."
-	sudo mv $THEME_DIR/gnome-shell-theme.gresource $GRSRC_DIR/
+	sudo mv "$THEME_DIR/gnome-shell-theme.gresource" $GRSRC_DIR/
 }
 
 # restart gdm.servie for changes to take effect
@@ -126,7 +126,9 @@ restart_gdm() {
 
 # reset
 reset() {
-	[ -f $GRSRC_DIR/gnome-shell-theme.gresource.bak ] && sudo cp $GRSRC_DIR/gnome-shell-theme.gresource.bak $GRSRC_DIR/gnome-shell-theme.gresource
+	[ -f $GRSRC_DIR/gnome-shell-theme.gresource.bak ] &&
+		sudo cp $GRSRC_DIR/gnome-shell-theme.gresource.bak \
+			$GRSRC_DIR/gnome-shell-theme.gresource
 	echo "restored backup"
 	echo "restart gdm to apply changes"
 	exit

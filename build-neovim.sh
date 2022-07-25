@@ -151,7 +151,7 @@ _build_at_version() {
 
 main() {
 
-  _print_header
+	_print_header
 
 	[[ $# -eq 0 ]] && _usage
 	[[ $# -gt 2 ]] && echo hey
