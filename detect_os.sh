@@ -26,7 +26,7 @@ Darwin)
 	echo "mac os"
 	;;
 *)
-	echo "OS $OS is not currently supported."
+	echo "unknown os type"
 	exit 1
 	;;
 esac
