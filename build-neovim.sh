@@ -145,7 +145,7 @@ _build_dev() {
 
 _build_at_version() {
 	echo "building at specific version of neovim.."
-	git checkout $1 && _make_release
+	git checkout "$1" && _make_release
 	echo "you are on neovim release version $1"
 }
 

@@ -4,16 +4,28 @@ set -eo pipefail
 
 declare CURRENT_VER
 
+# check for internet connection
+checkInternet() {
+	# is_connected="$(nmcli general status | grep '^connected' >/dev/null)"
+	# if ! "$is_connected"; then
+	# 	echo 'no internet'
+	# 	exit 1
+	# fi
+	! nmcli general status | grep '^connected' >/dev/null && echo 'no internet' && exit 1
+	echo 'internet check complete!'
+}
+
+# check for and install dependencies (if necessary)
 dependencies=("jq" "curl")
 
 installDependencies() {
-    
-    if  ! hash dnf 2>/dev/null; then
+
+	if ! hash dnf 2>/dev/null; then
 		echo 'script should only be run on fedora or a fedora derived distro'
 		exit 1
-    fi
+	fi
 
-    echo 'installing dependencies...'
+	echo 'installing dependencies...'
 	for pkg in "${dependencies[@]}"; do
 		if ! hash "$pkg" 2>/dev/null; then
 			echo "installing $pkg..."
@@ -65,16 +77,18 @@ installUpgradeDependencies() {
 # download the updated packages
 installUpgradedPackages() {
 	echo "downloading packages for F$LATEST_VER.."
-	sudo dnf system-upgrade download --releasever="$LATEST_VER" -y
+	sudo dnf system-upgrade download --releasever="$LATEST_VER" -y --skip-broken
 }
 
 # trigger the upgrade process
 triggerUpgrade() {
-    echo "upgrading to F$LATEST_VER from F$CURRENT_VER..."
+	echo "upgrading to F$LATEST_VER from F$CURRENT_VER..."
 	sudo dnf system-upgrade reboot -y
 }
 
 main() {
+	checkInternet
+
 	installDependencies
 	getCurrentReleaseVersion
 	getLatestReleaseVersion
@@ -84,6 +98,16 @@ main() {
 		echo 'exiting...'
 		exit
 	fi
+
+	echo "🤲 sudo access needed"
+	sudo -v
+
+	# Keep-alive: update existing sudo time stamp if set, otherwise do nothing.
+	while true; do
+		sudo -n true
+		sleep 60
+		kill -0 "$$" || exit
+	done 2>/dev/null &
 
 	updateCurrentSystem
 	installUpgradeDependencies

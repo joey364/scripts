@@ -14,13 +14,13 @@ declare -r LUNARVIM_CONFIG_DIR="${LUNARVIM_CONFIG_DIR:-"$XDG_CONFIG_HOME/lvim"}"
 declare -r LUNARVIM_CACHE_DIR="$XDG_CACHE_HOME/nvim"
 
 declare -a __lvim_dirs=(
-	"$LUNARVIM_CONFIG_DIR"
+	# "$LUNARVIM_CONFIG_DIR"
 	"$LUNARVIM_RUNTIME_DIR"
-	"$LUNARVIM_CACHE_DIR"
+	# "$LUNARVIM_CACHE_DIR"
 )
 
 function usage() {
-	echo "Usage: uninstall.sh [<options>]"
+	echo "Usage: $0 [<options>]"
 	echo ""
 	echo "Options:"
 	echo "    -h, --help                       Print this help message"
